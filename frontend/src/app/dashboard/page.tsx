@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth"
+import { api } from "@/lib/api"
 import type { Task, Mastery } from "@/types"
 import Link from "next/link"
 import { MixedText } from "@/components/Latex"
