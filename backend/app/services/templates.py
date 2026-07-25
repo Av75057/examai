@@ -1392,3 +1392,189 @@ TEMPLATES.append({
     "solution_template": {"steps": ["a + b = (x₁+x₂; y₁+y₂)", "= ({x1}+{x2}; {y1}+{y2}) = {answer}"]},
     "difficulty_base": 0.1,
 })
+
+# ═══════════════════════════════════════════
+# 5 КЛАСС: арифметика, дроби, проценты
+# ═══════════════════════════════════════════
+
+TEMPLATES.append({
+    "id": "g5_001",
+    "topic_code": "word_problems",
+    "content_template": {"text": "В магазине было {a} кг яблок. Продали {b} кг. Сколько кг яблок осталось?"},
+    "generate_params": lambda: {"a": P.int_range(50, 200), "b": P.int_range(10, 80)},
+    "compute_answer": lambda p: str(p["a"] - p["b"]),
+    "solution_template": {"steps": ["{a} - {b} = {answer}", "Осталось {answer} кг"]},
+    "difficulty_base": 0.05,
+})
+
+TEMPLATES.append({
+    "id": "g5_002",
+    "topic_code": "word_problems",
+    "content_template": {"text": "Тетрадь стоит {price} руб. Сколько стоят {n} таких тетрадей?"},
+    "generate_params": lambda: {"price": P.int_range(5, 50), "n": P.int_range(2, 12)},
+    "compute_answer": lambda p: str(p["price"] * p["n"]),
+    "solution_template": {"steps": ["{price} × {n} = {answer}", "Ответ: {answer} руб."]},
+    "difficulty_base": 0.05,
+})
+
+TEMPLATES.append({
+    "id": "g5_003",
+    "topic_code": "word_problems",
+    "content_template": {"text": "Найдите периметр прямоугольника со сторонами {a} см и {b} см."},
+    "generate_params": lambda: {"a": P.int_range(3, 15), "b": P.int_range(2, 12)},
+    "compute_answer": lambda p: str(2 * (p["a"] + p["b"])),
+    "solution_template": {"steps": ["P = 2·(a + b)", "P = 2·({a} + {b}) = {answer} см"]},
+    "difficulty_base": 0.05,
+})
+
+TEMPLATES.append({
+    "id": "g5_004",
+    "topic_code": "word_problems",
+    "content_template": {"text": "Найдите площадь прямоугольника со сторонами {a} см и {b} см."},
+    "generate_params": lambda: {"a": P.int_range(2, 10), "b": P.int_range(3, 12)},
+    "compute_answer": lambda p: str(p["a"] * p["b"]),
+    "solution_template": {"steps": ["S = a × b", "S = {a} × {b} = {answer} см²"]},
+    "difficulty_base": 0.05,
+})
+
+TEMPLATES.append({
+    "id": "g5_005",
+    "topic_code": "word_problems",
+    "content_template": {"text": "Вычислите: {a} · {b} + {c}"},
+    "generate_params": lambda: {"a": P.int_range(2, 12), "b": P.int_range(2, 10), "c": P.int_range(5, 30)},
+    "compute_answer": lambda p: str(p["a"] * p["b"] + p["c"]),
+    "solution_template": {"steps": ["{a} · {b} = {ab}", "{ab} + {c} = {answer}"]},
+    "difficulty_base": 0.05,
+})
+
+# ═══════════════════════════════════════════
+# 6 КЛАСС: пропорции, координаты, делимость
+# ═══════════════════════════════════════════
+
+TEMPLATES.append({
+    "id": "g6_001",
+    "topic_code": "word_problems",
+    "content_template": {"text": "Найдите {pct}% от числа {num}."},
+    "generate_params": lambda: {"pct": P.choice([10, 20, 25, 30, 50, 75]), "num": P.int_range(100, 1000)},
+    "compute_answer": lambda p: str(p["num"] * p["pct"] // 100),
+    "solution_template": {"steps": ["{pct}% = {pct}/100", "{num} × {pct}/100 = {num} × 0.{pct} = {answer}"]},
+    "difficulty_base": 0.08,
+})
+
+TEMPLATES.append({
+    "id": "g6_002",
+    "topic_code": "word_problems",
+    "content_template": {"text": "Решите пропорцию: {a} : {b} = x : {c}. Найдите x."},
+    "generate_params": lambda: {"a": P.int_range(2, 8), "b": P.int_range(2, 6), "c": P.int_range(4, 20)},
+    "compute_answer": lambda p: str(round(p["a"] * p["c"] / p["b"], 1)),
+    "solution_template": {"steps": ["x = {a} · {c} / {b}", "x = {ac} / {b} = {answer}"]},
+    "difficulty_base": 0.1,
+})
+
+TEMPLATES.append({
+    "id": "g6_003",
+    "topic_code": "word_problems",
+    "content_template": {"text": "Масса {n} одинаковых ящиков с фруктами {total} кг. Найдите массу одного ящика."},
+    "generate_params": lambda: {"n": P.int_range(4, 12), "total": P.int_range(20, 120)},
+    "compute_answer": lambda p: str(round(p["total"] / p["n"], 1)),
+    "solution_template": {"steps": ["{total} / {n} = {answer}", "Один ящик весит {answer} кг"]},
+    "difficulty_base": 0.08,
+})
+
+TEMPLATES.append({
+    "id": "g6_004",
+    "topic_code": "word_problems",
+    "content_template": {"text": "Делится ли число {n} на {d}? (1 — да, 0 — нет)"},
+    "generate_params": lambda: {"n": P.int_range(100, 999), "d": P.choice([2, 3, 5, 9, 10])},
+    "compute_answer": lambda p: "1" if p["n"] % p["d"] == 0 else "0",
+    "solution_template": {"steps": ["{n} ÷ {d} = {div} (ост. {rem})", "Делится" if "1" == "1" else "Не делится"]},
+    "difficulty_base": 0.08,
+})
+
+# ═══════════════════════════════════════════
+# 7 КЛАСС: алгебра, ФСУ, геометрия
+# ═══════════════════════════════════════════
+
+TEMPLATES.append({
+    "id": "g7_001",
+    "topic_code": "linear_equations",
+    "content_template": {"text": "Решите уравнение: {a}x = {b}"},
+    "generate_params": lambda: {"a": P.int_range(2, 9), "b": P.int_range(10, 90)},
+    "compute_answer": lambda p: str(round(p["b"] / p["a"], 1)),
+    "solution_template": {"steps": ["x = {b} / {a}", "x = {answer}"]},
+    "difficulty_base": 0.08,
+})
+
+TEMPLATES.append({
+    "id": "g7_002",
+    "topic_code": "linear_equations",
+    "content_template": {"text": "Раскройте скобки: ({a} + {b})²"},
+    "generate_params": lambda: {"a": P.int_range(1, 5), "b": P.int_range(1, 5)},
+    "compute_answer": lambda p: f"{p['a']**2} + {2*p['a']*p['b']}x + {p['b']**2}" if p['a'] > 1 else f"x² + {2*p['a']*p['b']}x + {p['b']**2}",
+    "solution_template": {"steps": ["(a+b)² = a² + 2ab + b²", "= {a}² + 2·{a}·{b}x + {b}²"]},
+    "difficulty_base": 0.1,
+})
+
+TEMPLATES.append({
+    "id": "g7_003",
+    "topic_code": "exponents",
+    "content_template": {"text": "Вычислите: {a}² + {b}²"},
+    "generate_params": lambda: {"a": P.int_range(2, 9), "b": P.int_range(2, 9)},
+    "compute_answer": lambda p: str(p["a"]**2 + p["b"]**2),
+    "solution_template": {"steps": ["{a}² = {asq}", "{b}² = {bsq}", "Сумма = {answer}"]},
+    "difficulty_base": 0.06,
+})
+
+TEMPLATES.append({
+    "id": "g7_004",
+    "topic_code": "geometry_planimetry",
+    "content_template": {"text": "Один из смежных углов равен {a}°. Найдите второй угол."},
+    "generate_params": lambda: {"a": P.int_range(30, 150)},
+    "compute_answer": lambda p: str(180 - p["a"]),
+    "solution_template": {"steps": ["Сумма смежных углов = 180°", "180° - {a}° = {answer}°"]},
+    "difficulty_base": 0.08,
+})
+
+# ═══════════════════════════════════════════
+# 8 КЛАСС: квадратные корни, Теорема Пифагора
+# ═══════════════════════════════════════════
+
+TEMPLATES.append({
+    "id": "g8_001",
+    "topic_code": "exponents",
+    "content_template": {"text": "Вычислите: √{n}"},
+    "generate_params": lambda: {"n": P.choice([4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144])},
+    "compute_answer": lambda p: str(int(math.sqrt(p["n"]))),
+    "solution_template": {"steps": ["√{n} = {answer}", "так как {answer}² = {n}"]},
+    "difficulty_base": 0.06,
+})
+
+TEMPLATES.append({
+    "id": "g8_002",
+    "topic_code": "geometry_planimetry",
+    "content_template": {"text": "Катеты прямоугольного треугольника {a} и {b}. Найдите гипотенузу по теореме Пифагора."},
+    "generate_params": lambda: {"a": P.int_range(3, 8), "b": P.int_range(4, 15)},
+    "compute_answer": lambda p: str(round(math.sqrt(p["a"]**2 + p["b"]**2), 1)),
+    "solution_template": {"steps": ["c² = a² + b²", "c = √({a}² + {b}²) = √{sumsq} = {answer}"]},
+    "difficulty_base": 0.1,
+})
+
+TEMPLATES.append({
+    "id": "g8_003",
+    "topic_code": "quadratic_equations",
+    "content_template": {"text": "Решите неполное квадратное уравнение: x² = {n}"},
+    "generate_params": lambda: {"n": P.choice([4, 9, 16, 25, 36, 49, 64, 81, 100])},
+    "compute_answer": lambda p: f"{int(math.sqrt(p['n']))}; -{int(math.sqrt(p['n']))}",
+    "solution_template": {"steps": ["x² = {n}", "x = ±√{n} = ±{root}"]},
+    "difficulty_base": 0.08,
+})
+
+TEMPLATES.append({
+    "id": "g8_004",
+    "topic_code": "quadratic_equations",
+    "content_template": {"text": "Решите уравнение: x² + {b}x = 0. Найдите больший корень."},
+    "generate_params": lambda: {"b": P.int_range_not_zero(-10, 10)},
+    "compute_answer": lambda p: str(max(0, -p["b"])),
+    "solution_template": {"steps": ["x(x + {b}) = 0", "x = 0 или x = {-b}", "Бо́льший корень: {answer}"]},
+    "difficulty_base": 0.1,
+})
