@@ -1298,20 +1298,20 @@ TEMPLATES.append({
 TEMPLATES.append({
     "id": "num_001",
     "topic_code": "number_theory",
-    "content_template": {"text": "Найдите НОД({a}, {b})."},
+    "content_template": {"text": "Найдите наибольший общий делитель (НОД) чисел {a} и {b}."},
     "generate_params": lambda: {"a": P.int_range(12, 96), "b": P.int_range(12, 96)},
     "compute_answer": lambda p: str(math.gcd(p["a"], p["b"])),
-    "solution_template": {"steps": ["Разложение: {a} = ..., {b} = ...", "НОД = {answer}"]},
+    "solution_template": {"steps": ["Разложение: {a} = ..., {b} = ...", "Наибольший общий делитель = {answer}"]},
     "difficulty_base": 0.2,
 })
 
 TEMPLATES.append({
     "id": "num_002",
     "topic_code": "number_theory",
-    "content_template": {"text": "Найдите НОК({a}, {b})."},
+    "content_template": {"text": "Найдите наименьшее общее кратное (НОК) чисел {a} и {b}."},
     "generate_params": lambda: {"a": P.int_range(6, 36), "b": P.int_range(6, 36)},
     "compute_answer": lambda p: str(p["a"] * p["b"] // math.gcd(p["a"], p["b"])),
-    "solution_template": {"steps": ["НОК(a,b) = a·b / НОД(a,b)", "НОК = {a}·{b}/{gcd} = {answer}"]},
+    "solution_template": {"steps": ["НОК(a,b) = a·b / НОД(a,b)", "Наименьшее общее кратное = {a}·{b}/{gcd} = {answer}"]},
     "difficulty_base": 0.2,
 })
 
