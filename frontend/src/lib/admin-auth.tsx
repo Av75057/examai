@@ -65,8 +65,6 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     } else {
       setLoading(false)
     }
-    const timeout = setTimeout(() => setLoading(false), 5000)
-    return () => clearTimeout(timeout)
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {
