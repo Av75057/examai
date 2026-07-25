@@ -72,6 +72,7 @@ async def list_students(
                 "name": u.name,
                 "subscription": u.subscription.value if u.subscription else "free",
                 "created_at": u.created_at.isoformat() if u.created_at else None,
+                "last_activity_at": u.last_activity_at.isoformat() if u.last_activity_at else None,
             }
             for u in users
         ],

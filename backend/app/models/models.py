@@ -31,6 +31,7 @@ class User(Base):
     grade = Column(Integer, default=11)
     exam_goal = Column(String(20), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+    last_activity_at = Column(DateTime, nullable=True)
 
     sessions = relationship("Session", back_populates="user")
     error_logs = relationship("ErrorLog", back_populates="user")

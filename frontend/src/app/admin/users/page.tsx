@@ -9,6 +9,7 @@ interface Student {
   name: string
   subscription: string
   created_at: string
+  last_activity_at: string | null
 }
 
 interface StudentDetail extends Student {
@@ -140,6 +141,7 @@ export default function AdminUsers() {
                   <th className="p-3">Email</th>
                   <th className="p-3">Тариф</th>
                   <th className="p-3">Дата регистрации</th>
+                  <th className="p-3">Активность</th>
                 </tr>
               </thead>
               <tbody>
@@ -160,6 +162,7 @@ export default function AdminUsers() {
                       </span>
                     </td>
                     <td className="p-3 text-gray-500">{new Date(s.created_at).toLocaleDateString("ru")}</td>
+                    <td className="p-3 text-gray-500">{s.last_activity_at ? new Date(s.last_activity_at).toLocaleDateString("ru") : "—"}</td>
                   </tr>
                 ))}
               </tbody>

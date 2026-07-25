@@ -50,6 +50,7 @@ async def start_session(
     engine = AdaptiveEngine(db)
     tasks = await engine.generate_daily_session(user.id, task_count=count, grade=user.grade)
 
+    user.last_activity_at = datetime.utcnow()
     session = Session(user_id=user.id, session_type="daily")
     db.add(session)
     await db.commit()
