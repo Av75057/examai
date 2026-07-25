@@ -24,7 +24,7 @@ const AdminContext = createContext<AdminContextType>({
   logout: () => {},
 })
 
-const API = "http://localhost:8000"
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
 
 async function apiCall<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem("admin_token")
