@@ -229,6 +229,9 @@ class TaskGenerator:
 
         import re
         result = re.sub(r'\s+', ' ', result).strip()
+
+        result = result.replace('\x0c', '\\f')
+
         return result
 
     def _render_solution(self, solution_template: dict, params: dict) -> dict:
