@@ -1193,20 +1193,20 @@ TEMPLATES.append({
 TEMPLATES.append({
     "id": "fin_001",
     "topic_code": "financial_math",
-    "content_template": {"text": "Вклад {sum_} руб. под {pct}% годовых. Сколько будет через год?"},
-    "generate_params": lambda: {"sum_": P.int_range(10000, 100000), "pct": P.choice([5, 8, 10, 12, 15])},
-    "compute_answer": lambda p: str(int(p["sum_"] * (1 + p["pct"] / 100))),
-    "solution_template": {"steps": ["S = S₀(1 + r)", "S = {sum_} · (1 + {pct}/100) = {answer}"]},
+    "content_template": {"text": "Вклад {amount} руб. под {pct}% годовых. Сколько будет через год?"},
+    "generate_params": lambda: {"amount": P.int_range(10000, 100000), "pct": P.choice([5, 8, 10, 12, 15])},
+    "compute_answer": lambda p: str(int(p["amount"] * (1 + p["pct"] / 100))),
+    "solution_template": {"steps": ["S = S₀(1 + r)", "S = {amount} · (1 + {pct}/100) = {answer}"]},
     "difficulty_base": 0.15,
 })
 
 TEMPLATES.append({
     "id": "fin_002",
     "topic_code": "financial_math",
-    "content_template": {"text": "Кредит {sum_} руб. на {n} года под {pct}% годовых. Найдите переплату (простые проценты)."},
-    "generate_params": lambda: {"sum_": P.int_range(50000, 300000), "n": P.choice([2, 3, 5]), "pct": P.choice([10, 12, 15])},
-    "compute_answer": lambda p: str(int(p["sum_"] * p["pct"] / 100 * p["n"])),
-    "solution_template": {"steps": ["Переплата = S₀ · r · n", "= {sum_} · {pct}/100 · {n} = {answer}"]},
+    "content_template": {"text": "Кредит {amount} руб. на {n} года под {pct}% годовых. Найдите переплату (простые проценты)."},
+    "generate_params": lambda: {"amount": P.int_range(50000, 300000), "n": P.choice([2, 3, 5]), "pct": P.choice([10, 12, 15])},
+    "compute_answer": lambda p: str(int(p["amount"] * p["pct"] / 100 * p["n"])),
+    "solution_template": {"steps": ["Переплата = S₀ · r · n", "= {amount} · {pct}/100 · {n} = {answer}"]},
     "difficulty_base": 0.2,
 })
 
