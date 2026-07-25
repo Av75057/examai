@@ -6,241 +6,133 @@ import { api } from "@/lib/api"
 import type { Task, AnswerResult } from "@/types"
 import { MixedText } from "@/components/Latex"
 
-const STORAGE_KEY = "diagnostic_state"
-
-interface SavedAnswer {
-  task_id: number
+interface DAnswer {
   answer: string
   is_correct: boolean | null
   result: AnswerResult | null
 }
 
-interface DiagnosticState {
-  tasks: Task[]
-  answers: SavedAnswer[]
-  currentIdx: number
-  completed: boolean
-}
-
 export default function DiagnosticPage() {
   const router = useRouter()
-  const [state, setState] = useState<DiagnosticState>(() => {
-    if (typeof window === "undefined") return { tasks: [], answers: [], currentIdx: 0, completed: false }
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) {
-      try { return JSON.parse(saved) }
-      catch { localStorage.removeItem(STORAGE_KEY) }
-    }
-    return { tasks: [], answers: [], currentIdx: 0, completed: false }
-  })
-  const [loading, setLoading] = useState(!state.tasks.length)
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [answers, setAnswers] = useState<Record<number, DAnswer>>({})
+  const [currentIdx, setCurrentIdx] = useState(0)
+  const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [completed, setCompleted] = useState(false)
   const [error, setError] = useState("")
 
-  const persist = (s: DiagnosticState) => {
-    setState(s)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(s))
-  }
-
   useEffect(() => {
-    if (state.tasks.length > 0) return
     api.get<Task[]>("/diagnostic/start")
-      .then(tasks => {
-        const answers = tasks.map(t => ({ task_id: t.id, answer: "", is_correct: null, result: null }))
-        persist({ tasks, answers, currentIdx: 0, completed: false })
-      })
-      .catch(e => setError("Ошибка загрузки: " + (e.message || "")))
+      .then(setTasks)
+      .catch(e => setError("Ошибка: " + (e.message || "попробуйте позже")))
       .finally(() => setLoading(false))
   }, [])
 
-  const tasks = state.tasks
-  const answers = state.answers
-  const currentIdx = state.currentIdx
   const task = tasks[currentIdx]
-  const currentAnswer = answers[currentIdx]
-
-  if (!task && tasks.length > 0) {
-    // Task not found - restart diagnostic
-    localStorage.removeItem(STORAGE_KEY)
-    window.location.reload()
-    return null
-  }
-
-  const setAnswer = (val: string) => {
-    const updated = [...answers]
-    updated[currentIdx] = { ...updated[currentIdx], answer: val }
-    persist({ ...state, answers: updated })
-  }
+  const ans = task ? answers[task.id] : null
 
   const submitAnswer = async () => {
-    if (!currentAnswer.answer.trim() || !task) return
+    if (!ans?.answer.trim() || !task) return
     setSubmitting(true)
     try {
       const result = await api.post<AnswerResult>("/diagnostic/submit", {
-        task_id: task.id,
-        answer: currentAnswer.answer.trim(),
-        time_spent_seconds: 5,
+        task_id: task.id, answer: ans.answer.trim(), time_spent_seconds: 5,
       })
-      const updated = [...answers]
-      updated[currentIdx] = {
-        ...updated[currentIdx],
-        is_correct: result.is_correct,
-        result: result,
-      }
-      persist({ ...state, answers: updated })
-    } catch (err: any) {
-      if (err?.message?.includes("не найдена") || err?.message?.includes("not found")) {
-        localStorage.removeItem(STORAGE_KEY)
-        window.location.reload()
-        return
-      }
-      setError(err?.message || "Ошибка отправки")
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  const goTo = (idx: number) => {
-    if (idx >= 0 && idx < tasks.length) {
-      persist({ ...state, currentIdx: idx })
-    }
+      setAnswers(prev => ({ ...prev, [task.id]: { ...ans, is_correct: result.is_correct, result } }))
+    } catch (e: any) {
+      setError(e?.message || "Ошибка")
+    } finally { setSubmitting(false) }
   }
 
   const finish = async () => {
-    const unanswered = answers.filter(a => a.is_correct === null).length
-    if (unanswered > 0) {
-      if (!confirm(`Осталось ${unanswered} неотвеченных вопросов. Завершить?`)) return
-    }
-    const results = answers.map(a => ({ task_id: a.task_id, is_correct: a.is_correct || false }))
+    const results = tasks.map(t => ({ task_id: t.id, is_correct: answers[t.id]?.is_correct || false }))
     await api.post("/diagnostic/complete", results)
-    persist({ ...state, completed: true })
-    localStorage.removeItem(STORAGE_KEY)
+    setCompleted(true)
   }
 
-  if (loading) return <div className="flex items-center justify-center min-h-screen">Загрузка...</div>
-  if (error) return <div className="flex items-center justify-center min-h-screen text-red-500">{error}</div>
+  if (loading) return <div className="flex items-center justify-center min-h-screen">
+    <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+  </div>
+  if (error) return <div className="flex items-center justify-center min-h-screen text-red-500 p-4 text-center">{error}</div>
 
-  if (state.completed) {
-    const correct = answers.filter(a => a.is_correct).length
+  if (completed) {
+    const correct = Object.values(answers).filter(a => a.is_correct).length
     return (
-      <div className="min-h-screen p-4 max-w-lg mx-auto flex flex-col items-center justify-center text-center">
+      <div className="min-h-screen p-4 max-w-lg mx-auto flex flex-col items-center justify-center text-center animate-fade-in">
         <div className="text-6xl mb-4">🎉</div>
         <h1 className="text-2xl font-bold mb-2">Диагностика завершена!</h1>
-        <p className="text-gray-500 mb-2">Правильно: {correct} из {answers.length}</p>
-        <p className="text-gray-500 mb-6">Ваш уровень определён по всем темам ЕГЭ</p>
-        <button onClick={() => router.push("/dashboard")} className="bg-primary text-white px-8 py-4 rounded-2xl text-lg font-bold hover:bg-primary-dark transition shadow-lg shadow-primary/25">
+        <p className="text-slate-500 mb-2">Правильно: {correct} из {tasks.length}</p>
+        <p className="text-slate-400 mb-6 text-sm">Ваш уровень определён по {tasks.length} темам</p>
+        <button onClick={() => router.push("/dashboard")} className="btn-primary px-10 py-4 text-lg font-bold">
           Начать обучение
         </button>
       </div>
     )
   }
 
-  if (!task) return <div className="flex items-center justify-center min-h-screen">Нет задач</div>
+  if (!task) return <div className="flex items-center justify-center min-h-screen text-slate-400">Нет задач</div>
 
   return (
-    <div className="min-h-screen p-4 max-w-lg mx-auto flex flex-col">
+    <div className="min-h-screen p-4 max-w-lg mx-auto flex flex-col animate-fade-in">
       <div className="flex justify-between items-center mb-2">
-        <span className="text-sm text-gray-400">Диагностика</span>
+        <span className="text-sm text-slate-400">Диагностика</span>
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-primary">{currentIdx + 1} из {tasks.length}</span>
-          <button
-            onClick={finish}
-            className="text-xs bg-gray-200 text-gray-600 px-3 py-1 rounded-full hover:bg-gray-300 transition"
-          >
-            Завершить
-          </button>
+          <span className="text-sm font-medium text-indigo-500">{currentIdx + 1}/{tasks.length}</span>
+          <button onClick={finish} className="text-xs bg-slate-100 text-slate-500 px-3 py-1 rounded-full hover:bg-slate-200">Завершить</button>
         </div>
       </div>
 
-      <div className="w-full bg-gray-200 rounded-full h-1.5 mb-2">
-        <div className="bg-primary h-1.5 rounded-full transition-all" style={{ width: `${((currentIdx + 1) / tasks.length) * 100}%` }} />
+      <div className="w-full bg-slate-200 rounded-full h-1.5 mb-3 overflow-hidden">
+        <div className="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full transition-all" style={{ width: `${((currentIdx + 1) / tasks.length) * 100}%` }} />
       </div>
 
-      {/* Question dots */}
       <div className="flex gap-1 mb-4 overflow-x-auto hide-scrollbar py-1">
         {tasks.map((t, i) => (
-          <button
-            key={t.id}
-            onClick={() => goTo(i)}
+          <button key={t.id} onClick={() => setCurrentIdx(i)}
             className={`w-7 h-7 rounded-full text-xs font-medium flex-shrink-0 transition ${
-              i === currentIdx
-                ? "bg-primary text-white"
-                : answers[i]?.is_correct === true
-                  ? "bg-green-100 text-green-700"
-                  : answers[i]?.is_correct === false
-                    ? "bg-red-100 text-red-700"
-                    : "bg-gray-100 text-gray-400"
-            }`}
-          >
-            {i + 1}
-          </button>
+              i === currentIdx ? "bg-indigo-500 text-white" :
+              answers[t.id]?.is_correct === true ? "bg-emerald-100 text-emerald-700" :
+              answers[t.id]?.is_correct === false ? "bg-red-100 text-red-700" :
+              "bg-slate-100 text-slate-400"
+            }`}>{i + 1}</button>
         ))}
       </div>
 
-      <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-4 flex-1">
-        <h2 className="text-lg font-semibold mb-3"><MixedText text={task.content.text} /></h2>
+      <div className="card p-5 mb-4 flex-1">
+        <h2 className="text-lg font-semibold text-slate-800 mb-3"><MixedText text={task.content.text} /></h2>
         {task.content.formula && (
-          <div className="bg-gray-50 p-3 rounded-lg text-center mb-3">
-            <MixedText text={`$$${task.content.formula}$$`} />
-          </div>
+          <div className="bg-slate-50 p-3 rounded-xl text-center border border-slate-100"><MixedText text={`$$${task.content.formula}$$`} /></div>
         )}
       </div>
 
-      {currentAnswer.is_correct !== null ? (
-        <div className="mb-3">
-          <div className={`p-3 rounded-xl text-sm ${currentAnswer.is_correct ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}>
-            <p className="font-medium">{currentAnswer.is_correct ? "✅ Правильно" : "❌ Ошибка"}</p>
-            {currentAnswer.result?.correct_answer && (
-              <p className="text-gray-600 mt-1">Ответ: {currentAnswer.result.correct_answer}</p>
-            )}
-            {currentAnswer.result?.explanation && (
-              <div className="mt-2 text-gray-600"><MixedText text={currentAnswer.result.explanation} /></div>
-            )}
-          </div>
+      {ans?.is_correct !== null ? (
+        <div className={`p-3 rounded-xl text-sm mb-3 ${ans.is_correct ? "bg-emerald-50 border border-emerald-200" : "bg-red-50 border border-red-200"}`}>
+          <p className="font-medium">{ans.is_correct ? "✅ Правильно" : "❌ Ошибка"}</p>
+          {ans.result?.correct_answer && <p className="text-slate-600 mt-1">Ответ: {ans.result.correct_answer}</p>}
+          {ans.result?.explanation && <div className="mt-2 text-slate-600"><MixedText text={ans.result.explanation} /></div>}
         </div>
       ) : (
         <div className="mb-3">
-          <input
-            type="text"
-            value={currentAnswer.answer}
-            onChange={(e) => setAnswer(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && submitAnswer()}
-            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            placeholder="Введите ответ..."
-            autoFocus
-          />
-          <button
-            onClick={submitAnswer}
-            disabled={!currentAnswer.answer.trim() || submitting}
-            className="w-full bg-primary text-white py-3 rounded-xl font-semibold mt-2 hover:bg-primary-dark transition disabled:opacity-50"
-          >
+          <input type="text" value={ans?.answer || ""}
+            onChange={e => setAnswers(prev => ({ ...prev, [task.id]: { answer: e.target.value, is_correct: null, result: null } }))}
+            onKeyDown={e => e.key === "Enter" && submitAnswer()}
+            className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 transition"
+            placeholder="Введите ответ..." autoFocus />
+          <button onClick={submitAnswer} disabled={!ans?.answer?.trim() || submitting}
+            className="btn-primary w-full py-3.5 text-base font-bold mt-2">
             {submitting ? "Проверяем..." : "Ответить"}
           </button>
         </div>
       )}
 
       <div className="flex gap-2 mb-4">
-        <button
-          onClick={() => goTo(currentIdx - 1)}
-          disabled={currentIdx === 0}
-          className="flex-1 border border-gray-300 py-3 rounded-xl font-medium hover:bg-gray-50 transition disabled:opacity-30"
-        >
-          ← Назад
-        </button>
+        <button onClick={() => setCurrentIdx(i => i - 1)} disabled={currentIdx === 0}
+          className="flex-1 bg-white border border-slate-200 py-3 rounded-2xl font-medium text-slate-600 hover:bg-slate-50 transition disabled:opacity-30">← Назад</button>
         {currentIdx < tasks.length - 1 ? (
-          <button
-            onClick={() => goTo(currentIdx + 1)}
-            className="flex-1 bg-primary text-white py-3 rounded-xl font-medium hover:bg-primary-dark transition"
-          >
-            Далее →
-          </button>
+          <button onClick={() => setCurrentIdx(i => i + 1)} className="btn-primary flex-1 py-3 text-base font-bold">Далее →</button>
         ) : (
-          <button
-            onClick={finish}
-            className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition"
-          >
-            Завершить диагностику
-          </button>
+          <button onClick={finish} className="flex-1 bg-emerald-500 text-white py-3 rounded-2xl font-bold hover:bg-emerald-600 transition">Завершить</button>
         )}
       </div>
     </div>
