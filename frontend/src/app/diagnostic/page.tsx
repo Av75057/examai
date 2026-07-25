@@ -59,6 +59,13 @@ export default function DiagnosticPage() {
   const task = tasks[currentIdx]
   const currentAnswer = answers[currentIdx]
 
+  if (!task && tasks.length > 0) {
+    // Task not found - restart diagnostic
+    localStorage.removeItem(STORAGE_KEY)
+    window.location.reload()
+    return null
+  }
+
   const setAnswer = (val: string) => {
     const updated = [...answers]
     updated[currentIdx] = { ...updated[currentIdx], answer: val }
