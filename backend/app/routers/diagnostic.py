@@ -19,6 +19,17 @@ def normalize_answer(ans: str) -> str:
     return ans.strip().replace(",", ".").lower()
 
 
+def answers_match(student: str, correct: str) -> bool:
+    s = normalize_answer(student)
+    c = normalize_answer(correct)
+    if s == c:
+        return True
+    try:
+        return abs(float(s) - float(c)) < 0.011
+    except ValueError:
+        return False
+
+
 @router.get("/start", response_model=list[TaskOut])
 async def start_diagnostic(
     db: AsyncSession = Depends(get_db),
@@ -80,7 +91,7 @@ async def submit_diagnostic_answer(
 
     student_answer = data.answer.strip()
     correct_answer = (task.answer_pattern or "").strip()
-    is_correct = normalize_answer(student_answer) == normalize_answer(correct_answer)
+    is_correct = answers_match(student_answer, correct_answer)
 
     result = await db.execute(
         select(Session)

@@ -22,6 +22,20 @@ def normalize_answer(ans: str) -> str:
     return ans.strip().replace(",", ".").lower()
 
 
+def answers_match(student: str, correct: str) -> bool:
+    """Check if student answer matches correct answer, with numeric tolerance"""
+    s = normalize_answer(student)
+    c = normalize_answer(correct)
+    if s == c:
+        return True
+    try:
+        sn = float(s)
+        cn = float(c)
+        return abs(sn - cn) < 0.011
+    except ValueError:
+        return False
+
+
 async def check_daily_limit(db: AsyncSession, user: User) -> int:
     if user.subscription and user.subscription.value == "premium":
         return 999
@@ -138,7 +152,7 @@ async def submit_answer(
     student_answer = data.answer.strip()
     correct_answer = (task.answer_pattern or "").strip()
 
-    is_correct = normalize_answer(student_answer) == normalize_answer(correct_answer)
+    is_correct = answers_match(student_answer, correct_answer)
 
     result = await db.execute(
         select(Session)

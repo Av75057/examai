@@ -11,6 +11,18 @@ import random
 
 router = APIRouter(prefix="/exam-sim", tags=["exam-simulator"])
 
+
+def _answers_match(student: str, correct: str) -> bool:
+    s = student.strip().replace(",", ".").lower()
+    c = correct.strip().replace(",", ".").lower()
+    if s == c:
+        return True
+    try:
+        return abs(float(s) - float(c)) < 0.011
+    except ValueError:
+        return False
+
+
 EXAM_DURATION = 235
 PART1_COUNT = 12
 PART2_COUNT = 6
@@ -116,7 +128,7 @@ async def submit_exam_answer(
         raise HTTPException(status_code=404, detail="Задача не найдена")
 
     topic = await db.get(Topic, task.topic_id)
-    is_correct = data.answer.strip().replace(",", ".").lower() == (task.answer_pattern or "").strip().replace(",", ".").lower()
+    is_correct = _answers_match(data.answer.strip(), (task.answer_pattern or "").strip())
 
     explanation = None
     ai_explanation = None
