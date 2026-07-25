@@ -116,7 +116,7 @@ async def submit_exam_answer(
         raise HTTPException(status_code=404, detail="Задача не найдена")
 
     topic = await db.get(Topic, task.topic_id)
-    is_correct = data.answer.strip().lower() == (task.answer_pattern or "").strip().lower()
+    is_correct = data.answer.strip().replace(",", ".").lower() == (task.answer_pattern or "").strip().replace(",", ".").lower()
 
     explanation = None
     ai_explanation = None

@@ -15,6 +15,10 @@ DIAGNOSTIC_SIZE = 20
 _analyzer = ErrorAnalyzer()
 
 
+def normalize_answer(ans: str) -> str:
+    return ans.strip().replace(",", ".").lower()
+
+
 @router.get("/start", response_model=list[TaskOut])
 async def start_diagnostic(
     db: AsyncSession = Depends(get_db),
@@ -76,7 +80,7 @@ async def submit_diagnostic_answer(
 
     student_answer = data.answer.strip()
     correct_answer = (task.answer_pattern or "").strip()
-    is_correct = student_answer.lower() == correct_answer.lower()
+    is_correct = normalize_answer(student_answer) == normalize_answer(correct_answer)
 
     result = await db.execute(
         select(Session)

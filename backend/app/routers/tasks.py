@@ -17,6 +17,11 @@ settings = get_settings()
 _analyzer = ErrorAnalyzer()
 
 
+def normalize_answer(ans: str) -> str:
+    """Normalize answer: comma→dot, strip spaces, lowercase"""
+    return ans.strip().replace(",", ".").lower()
+
+
 async def check_daily_limit(db: AsyncSession, user: User) -> int:
     if user.subscription and user.subscription.value == "premium":
         return 999
@@ -133,7 +138,7 @@ async def submit_answer(
     student_answer = data.answer.strip()
     correct_answer = (task.answer_pattern or "").strip()
 
-    is_correct = student_answer.lower() == correct_answer.lower()
+    is_correct = normalize_answer(student_answer) == normalize_answer(correct_answer)
 
     result = await db.execute(
         select(Session)
