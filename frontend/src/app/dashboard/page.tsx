@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth"
-import { api } from "@/lib/api"
 import type { Task, Mastery } from "@/types"
 import Link from "next/link"
 import { MixedText } from "@/components/Latex"
@@ -18,7 +17,7 @@ interface ProgressData {
 }
 
 export default function DashboardPage() {
-  const { user, loading } = useAuth()
+  const { user, loading, logout } = useAuth()
   const router = useRouter()
   const [tasks, setTasks] = useState<Task[]>([])
   const [mastery, setMastery] = useState<Mastery[]>([])
@@ -77,7 +76,10 @@ export default function DashboardPage() {
             {user.grade} класс · {user.subscription === "premium" ? "Premium" : "Free"}
           </p>
         </div>
-        <Link href="/profile" className="text-sm text-primary font-medium">Профиль</Link>
+        <div className="flex items-center gap-3">
+          <button onClick={logout} className="text-sm text-gray-400 hover:text-red-500 transition">Выйти</button>
+          <Link href="/profile" className="text-sm text-primary font-medium">Профиль</Link>
+        </div>
       </header>
 
       <div className="grid grid-cols-2 gap-3 mb-4">
