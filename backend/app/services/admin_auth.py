@@ -64,7 +64,7 @@ def decode_token(token: str) -> dict:
 async def authenticate_admin(db: AsyncSession, email: str, password: str) -> AdminUser | None:
     result = await db.execute(select(AdminUser).where(AdminUser.email == email))
     admin = result.scalar_one_or_none()
-    if not admin or not admin.is_active:
+    if not admin or admin.is_active is False:
         return None
 
     if admin.locked_until and admin.locked_until > datetime.utcnow():
