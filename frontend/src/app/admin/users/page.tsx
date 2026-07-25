@@ -162,7 +162,7 @@ export default function AdminUsers() {
                       </span>
                     </td>
                     <td className="p-3 text-gray-500">{new Date(s.created_at).toLocaleDateString("ru")}</td>
-                    <td className="p-3 text-gray-500">{s.last_activity_at ? new Date(s.last_activity_at).toLocaleDateString("ru") : "—"}</td>
+                    <td className="p-3 text-gray-500">{s.last_activity_at ? new Date(s.last_activity_at).toLocaleString("ru") : "—"}</td>
                   </tr>
                 ))}
               </tbody>
