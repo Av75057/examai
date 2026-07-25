@@ -129,7 +129,15 @@ export default function DiagnosticPage() {
     <div className="min-h-screen p-4 max-w-lg mx-auto flex flex-col">
       <div className="flex justify-between items-center mb-2">
         <span className="text-sm text-gray-400">Диагностика</span>
-        <span className="text-sm font-medium text-primary">{currentIdx + 1} из {tasks.length}</span>
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium text-primary">{currentIdx + 1} из {tasks.length}</span>
+          <button
+            onClick={finish}
+            className="text-xs bg-gray-200 text-gray-600 px-3 py-1 rounded-full hover:bg-gray-300 transition"
+          >
+            Завершить
+          </button>
+        </div>
       </div>
 
       <div className="w-full bg-gray-200 rounded-full h-1.5 mb-2">
