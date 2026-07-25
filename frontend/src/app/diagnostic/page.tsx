@@ -89,6 +89,11 @@ export default function DiagnosticPage() {
       }
       persist({ ...state, answers: updated })
     } catch (err: any) {
+      if (err?.message?.includes("не найдена") || err?.message?.includes("not found")) {
+        localStorage.removeItem(STORAGE_KEY)
+        window.location.reload()
+        return
+      }
       setError(err?.message || "Ошибка отправки")
     } finally {
       setSubmitting(false)
