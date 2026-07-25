@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import engine
 from app.models.models import Base
-from app.routers import auth, tasks, errors, exams, diagnostic, exam_simulator, progress
+from app.routers import auth, tasks, errors, exams, diagnostic, exam_simulator, progress, chat
 from app.routers.admin import auth_router, topics_router, main_router, templates_router, adaptive_router, ai_router, exams_router, grades_router
 from app.models.admin_models import Base as AdminBase
 
@@ -38,6 +38,7 @@ app.include_router(exams.router)
 app.include_router(diagnostic.router)
 app.include_router(exam_simulator.router)
 app.include_router(progress.router)
+app.include_router(chat.router)
 app.include_router(auth_router.router)
 app.include_router(topics_router.router)
 app.include_router(main_router.router)

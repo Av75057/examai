@@ -1,12 +1,13 @@
 "use client"
 
-import { useSearchParams, useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useSearchParams, useRouter, useParams } from "next/navigation"
 import { MixedText } from "@/components/Latex"
+import { ChatBox } from "@/components/ChatBox"
 
 export default function ResultPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const params = useParams()
 
   const isCorrect = searchParams.get("correct") === "true"
   const correctAnswer = searchParams.get("answer") || ""
@@ -69,6 +70,8 @@ export default function ResultPage() {
           <MixedText text={microTask} className="block text-sm" />
         </div>
       )}
+
+      {!isCorrect && <ChatBox taskId={Number(params.answerId)} />}
 
       <div className="flex gap-3">
         <button
