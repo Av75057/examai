@@ -12,6 +12,7 @@ import os
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "YOUR_BOT_TOKEN_HERE")
 WEBAPP_URL = os.getenv("WEBAPP_URL", "http://185.43.5.82:3001")
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://examai:examai_secret@localhost:5432/examai")
+PROXY_URL = os.getenv("TELEGRAM_PROXY", None)  # e.g. "http://proxy:8080" or "socks5://proxy:1080"
 
 engine = create_async_engine(DATABASE_URL)
 async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
@@ -114,7 +115,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def main():
-    app = Application.builder().token(BOT_TOKEN).build()
+    builder = Application.builder().token(BOT_TOKEN)
+    if PROXY_URL:
+        builder = builder.proxy(PROXY_URL)
+        print(f"Using proxy: {PROXY_URL}")
+    app = builder.build()
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("register", handle_register))
