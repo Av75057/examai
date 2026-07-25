@@ -10,7 +10,7 @@ import random
 
 router = APIRouter(prefix="/diagnostic", tags=["diagnostic"])
 
-DIAGNOSTIC_SIZE = 20
+DIAGNOSTIC_SIZE = 5
 
 _analyzer = ErrorAnalyzer()
 
