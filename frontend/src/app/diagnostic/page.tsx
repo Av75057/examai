@@ -106,7 +106,7 @@ export default function DiagnosticPage() {
         )}
       </div>
 
-      {ans?.is_correct !== null ? (
+      {ans && ans.is_correct !== null ? (
         <div className={`p-3 rounded-xl text-sm mb-3 ${ans.is_correct ? "bg-emerald-50 border border-emerald-200" : "bg-red-50 border border-red-200"}`}>
           <p className="font-medium">{ans.is_correct ? "✅ Правильно" : "❌ Ошибка"}</p>
           {ans.result?.correct_answer && <p className="text-slate-600 mt-1">Ответ: {ans.result.correct_answer}</p>}
