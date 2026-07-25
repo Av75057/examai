@@ -45,6 +45,18 @@ class UserUpdate(BaseModel):
     name: str | None = None
 
 
+@router.post("/activate-premium", response_model=dict)
+async def activate_premium(
+    db: AsyncSession = Depends(get_db),
+    user=Depends(current_user),
+):
+    if user.subscription and user.subscription.value == "premium":
+        return {"status": "already_premium"}
+    user.subscription = "premium"
+    await db.commit()
+    return {"status": "activated", "subscription": "premium"}
+
+
 @router.patch("/me", response_model=UserProfile)
 async def update_profile(
     data: UserUpdate,

@@ -138,8 +138,8 @@ export default function DashboardPage() {
             <p className="text-lg font-bold text-orange-700 mb-1">Лимит на сегодня исчерпан</p>
             <p className="text-sm text-orange-600 mb-3">Бесплатно: {limit.limit} задач в день</p>
             <p className="text-sm text-gray-500 mb-4">Premium — безлимит, ИИ-разборы, все пробники</p>
-            <button className="bg-yellow-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-yellow-600 transition">
-              Premium за {990} ₽/мес
+            <button onClick={() => router.push("/premium")} className="bg-yellow-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-yellow-600 transition">
+              Premium за 990 ₽/мес
             </button>
           </div>
         ) : (
